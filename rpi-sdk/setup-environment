@@ -1,0 +1,113 @@
+#!/bin/sh
+
+CWD=`pwd`
+PROGNAME="setup-environment"
+
+usage()
+{
+    echo -e "\nUsage: source $PROGNAME <build-dir>
+    <build-dir>: specifies the build directory location (required)
+
+If undefined, this script will set \$MACHINE to 'imx6qsabresd'.
+"
+
+        echo -e "
+Supported machines: raspberrypi0, raspberrypi0-wifi, raspberrypi2, raspberrypi3
+To build for a machine listed above, run this script as:
+MACHINE=<machine> source $PROGNAME <build-dir>
+"
+}
+
+clean_up()
+{
+   unset EULA LIST_MACHINES VALID_MACHINE
+   unset CWD TEMPLATES SHORTOPTS LONGOPTS ARGS PROGNAME
+   unset generated_config updated
+   unset MACHINE SDKMACHINE OEROOT
+}
+
+# get command line options
+SHORTOPTS="h"
+LONGOPTS="help"
+
+ARGS=$(getopt --options $SHORTOPTS  \
+  --longoptions $LONGOPTS --name $PROGNAME -- "$@" )
+# Print the usage menu if invalid options are specified
+if [ $? != 0 -o $# -lt 1 ]; then
+   usage && clean_up
+   return 1
+fi
+
+eval set -- "$ARGS"
+while true;
+do
+    case $1 in
+        -h|--help)
+           usage
+           clean_up
+           return 0
+           ;;
+        --)
+           shift
+           break
+           ;;
+    esac
+done
+
+if [ "$(whoami)" = "root" ]; then
+    echo "ERROR: do not use the BSP as root. Exiting..."
+fi
+
+if [ -z "$MACHINE" ]; then
+    MACHINE='raspberrypi0'
+fi
+
+# Check the machine type specified
+if [ -z "$SDKMACHINE" ]; then
+    SDKMACHINE='i686'
+fi
+
+. source/poky/oe-init-build-env $CWD/$1 
+
+# Clean up PATH, because if it includes tokens to current directories somehow,
+# wrong binaries can be used instead of the expected ones during task execution
+export PATH="`echo $PATH | sed 's/\(:.\|:\)*:/:/g;s/^.\?://;s/:.\?$//'`"
+
+
+TEMPLATES=$CWD/source/meta-rpi/conf 
+cp -rf $TEMPLATES/* conf/
+
+echo "EULA has been accepted."
+echo "ACCEPT_FSL_EULA = \"1\"" >> conf/local.conf
+echo "BB_NUMBER_THREADS = \"20\"" >> conf/local.conf
+echo "PARALLEL_MAKE = \"-j 4\"" >> conf/local.conf			
+#echo "LORAGWMODE = \"LG-1000M\"" >> conf/local.conf
+#echo "SUPERWIFIMODULE = \"AP\"" >> conf/local.conf
+
+cat <<EOF
+
+Welcome to Freescale Community BSP
+
+The Yocto Project has extensive documentation about OE including a
+reference manual which can be found at:
+    http://yoctoproject.org/documentation
+
+You can now run 'bitbake <target>'
+
+Common targets are:
+    console-image
+
+EOF
+
+if [ -n "$generated_config" ]; then
+    cat <<EOF
+Your build environment has been configured with:
+
+    MACHINE=$MACHINE
+    SDKMACHINE=$SDKMACHINE
+EOF
+else
+    echo "Your configuration files at $1 have not been touched."
+fi
+
+clean_up

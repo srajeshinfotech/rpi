@@ -57,8 +57,3 @@ unset OEROOT
 
 [ -z "$BUILDDIR" ] || cd "$BUILDDIR"
 
-
-
-
-#Rajesh
-
