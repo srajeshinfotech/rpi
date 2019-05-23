@@ -3,6 +3,8 @@ SUMMARY = "A console development image with some C/C++ dev tools"
 IMAGE_FEATURES += "package-management splash"
 IMAGE_LINGUAS = "en-us"
 
+DISTRO_FEATURES_append = "systemd"
+
 inherit image
 
 DEPENDS += "bcm2835-bootfiles"
