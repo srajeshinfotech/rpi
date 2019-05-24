@@ -1,0 +1,9 @@
+[Unit]
+Description=Start initscript upon Wlan0 UDHCPC [Altiux Innovations Pvt Limited - Rajesh.S@altiux.com]
+
+[Service]
+Type=simple
+ExecStart=/bin/sh -c 'sleep 20; udhcpc -i wlan0'
+
+[Install]
+WantedBy=multi-user.target

@@ -3,7 +3,7 @@ SUMMARY = "A console development image with some C/C++ dev tools"
 IMAGE_FEATURES += "package-management splash"
 IMAGE_LINGUAS = "en-us"
 
-DISTRO_FEATURES_append = "systemd"
+DISTRO_FEATURES_append = " systemd"
 
 inherit image
 
@@ -97,7 +97,7 @@ APRICOT_DEPENDS = " \
     opencv libopencv-core libopencv-imgproc libopencv-core-dev opencv-apps gstreamer1.0-libav python3-pip libpipeline \
     libcurl curl-dev \
     libopencv-core-dev opencv-apps opencv-dev libopencv-imgproc-dev libopencv-objdetect-dev libopencv-ml-dev \
-    wiringpi \
+    wiringpi xmlto usbinit \
 "
 
 IMAGE_INSTALL += " \
@@ -108,6 +108,8 @@ IMAGE_INSTALL += " \
     ${APRICOT_DEPENDS} \
     ${DEV_SDK_INSTALL} \
 "
+
+#IMAGE_INSTALL += "dhcp-server dhcp-client"
 
 set_local_timezone() {
     ln -sf /usr/share/zoneinfo/EST5EDT ${IMAGE_ROOTFS}/etc/localtime

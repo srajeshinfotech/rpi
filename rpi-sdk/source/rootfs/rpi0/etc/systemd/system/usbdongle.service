@@ -1,0 +1,9 @@
+[Unit]
+Description=Start initscript upon USB Dongle [Altiux Innovations Pvt Limited - Rajesh.S@altiux.com]
+
+[Service]
+Type=simple
+ExecStart=/bin/sh -c 'sleep 15 ; udhcpc -i usb0'
+
+[Install]
+WantedBy=multi-user.target
