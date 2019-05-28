@@ -23,6 +23,8 @@ WIFI_SUPPORT = " \
     wpa-supplicant \
 "
 
+_DEV_SDK_INSTALL = " "
+
 DEV_SDK_INSTALL = " \
     binutils \
     binutils-symlinks \
@@ -50,6 +52,14 @@ DEV_SDK_INSTALL = " \
     python3-modules \
     strace \
     nmap \
+    cmake \
+    xmlto \
+    usbinit \
+    dhcp-server dhcp-client \
+    dpkg \
+    sqlite3 \
+    gawk \
+    autoconf \
 "
 
 DEV_EXTRAS = " \
@@ -93,11 +103,11 @@ RPI_STUFF = " \
 APRICOT_DEPENDS = " \
     openssh openssh-keygen openssh-sftp-server \
     openssh-scp openssh-ssh openssh-sshd openssh-sftp openssh-misc openssh-dev \
-    gnupg librepo curl mosquitto wiringpi glib-2.0 sqlite3 opie-deco-liquid systemd-machine-units dpkg ncurses \
+    gnupg librepo curl mosquitto wiringpi glib-2.0 opie-deco-liquid systemd-machine-units ncurses \
     opencv libopencv-core libopencv-imgproc libopencv-core-dev opencv-apps gstreamer1.0-libav python3-pip libpipeline \
     libcurl curl-dev \
     libopencv-core-dev opencv-apps opencv-dev libopencv-imgproc-dev libopencv-objdetect-dev libopencv-ml-dev \
-    wiringpi xmlto usbinit \
+    libxml2-utils libxml2 \
 "
 
 IMAGE_INSTALL += " \
@@ -108,8 +118,6 @@ IMAGE_INSTALL += " \
     ${APRICOT_DEPENDS} \
     ${DEV_SDK_INSTALL} \
 "
-
-#IMAGE_INSTALL += "dhcp-server dhcp-client"
 
 set_local_timezone() {
     ln -sf /usr/share/zoneinfo/EST5EDT ${IMAGE_ROOTFS}/etc/localtime

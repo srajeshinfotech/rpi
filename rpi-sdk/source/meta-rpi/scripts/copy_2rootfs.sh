@@ -10,7 +10,7 @@ if [ -z "${MACHINE}" ]; then
 fi
 
 if [ "x${1}" = "x" ]; then
-	echo -e "\nUsage: ${0} <block device> [ <image-type> [<hostname>] ]\n"
+	echo -e "\nUsage: ${0} <block device> [ <image-type> [<hostname>] <default rootfs> <tar file> ]\n"
 	exit 0
 fi
 
@@ -57,11 +57,18 @@ else
         DEFAULT_ROOTFS=${4}
 fi
 
+
+if [ "x${5}" = "x" ]; then
+        TAR_FILE_PATH=${SRCDIR}/${IMAGE}-image-${MACHINE}.tar.xz
+else
+        TAR_FILE_PATH=${5}
+fi
+
 echo -e "DEFAULT_ROOTFS: $DEFAULT_ROOTFS\n"
 
 
-if [ ! -f "${SRCDIR}/${IMAGE}-image-${MACHINE}.tar.xz" ]; then
-        echo "File not found: ${SRCDIR}/${IMAGE}-image-${MACHINE}.tar.xz"
+if [ ! -f "${TAR_FILE_PATH}" ]; then
+        echo "File not found: ${TAR_FILE_PATH}"
         exit 1
 fi
 
@@ -112,8 +119,8 @@ do
 		exit 1
 	fi
 
-	echo "Extracting ${IMAGE}-image-${MACHINE}.tar.xz to ${mountpath}"
-	sudo tar --numeric-owner -C ${mountpath} -xJf ${SRCDIR}/${IMAGE}-image-${MACHINE}.tar.xz
+	echo "Extracting ${TAR_FILE_PATH} to ${mountpath}"
+	sudo tar --numeric-owner -C ${mountpath} -xJf ${TAR_FILE_PATH}
 
 	echo "Generating a random-seed for urandom"
 	sudo mkdir -p ${mountpath}/var/lib/urandom
@@ -122,7 +129,7 @@ do
 
 	echo "Writing ${TARGET_HOSTNAME} to /etc/hostname"
 	export TARGET_HOSTNAME
-	sudo -E bash -c 'echo ${TARGET_HOSTNAME} > ${mountpath}/etc/hostname'
+	sudo echo ${TARGET_HOSTNAME} > ${mountpath}/etc/hostname
 
 	echo "Install the default rootfs to ${mountpath}"
 	cp -rf ${DEFAULT_ROOTFS}/* ${mountpath}/
