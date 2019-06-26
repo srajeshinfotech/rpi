@@ -27,6 +27,6 @@ cd RPI/rpi-sdk/source/setup
 
 ./install.sh <device path> <bootloader> <os>
   
-ex:- ./install.sh /dev/sdb ../../build/bootloader-aicam.tar.xz ../../build/os-aicam.tar.xz
+ex:- ./install.sh /dev/sdb ../../build/bootloader-rpi0.tar.xz ../../build/os-rpi0.tar.xz
 
 -------------------------------------
