@@ -5,7 +5,7 @@ KERNEL_IMAGETYPE=zImage
 if [ -z "${MACHINE}" ]; then
     echo "Environment variable MACHINE not set"
     echo "Example: export MACHINE=raspberrypi3 or export MACHINE=raspberrypi0-wifi"
-    export MACHINE=raspberrypi0
+    exit 1
 fi
 
 case "${MACHINE}" in
@@ -37,53 +37,13 @@ BOOTLDRFILES="bootcode.bin \
               start_x.elf"
 
 if [ "x${1}" = "x" ]; then
-    echo -e "\nUsage: ${0} <block device> [<bootloader.tar>]\n"
+    echo -e "\nUsage: ${0} <block device>\n"
     exit 0
 fi
 
-sudo mkdir -p /media/card
-
-if [ -b ${1} ]; then
-    DEV=${1}
-else
-    DEV=/dev/${1}1
-
-    if [ ! -b ${DEV} ]; then
-        DEV=/dev/${1}p1
-
-        if [ ! -b ${DEV} ]; then
-            echo "Block device not found: /dev/${1}1 or /dev/${1}p1"
-            exit 1
-        fi
-    fi
-fi
-
-echo "Formatting FAT partition on ${DEV}"
-sudo mkfs.vfat -F 32 ${DEV} -n boot
-
-echo "Mounting ${DEV}"
-mountpath="/media/card"
-sudo umount ${DEV}
-sudo mount ${DEV} ${mountpath}
-
-if [ "$?" -ne 0 ]; then
-    echo "Error mounting ${DEV} at ${mountpath}"
+if [ ! -d /media/card ]; then
+    echo "Temporary mount point [/media/card] not found"
     exit 1
-fi
-
-rm -rf ${mountpath}/* 2> /dev/null
-
-if [ -f "$2" ]; then
-    echo "Exacting the bootloader tar($2) into ${mountpath}"
-    sudo tar --numeric-owner -lxvf $2  -C ${mountpath}
-    if [ "$?" -ne 0 ]; then
-        echo "Error exacting the tar file $2 at ${mountpath}"
-        sudo umount ${DEV}
-        exit 1
-    fi
-    sudo umount ${DEV}
-    echo "!! Done !!"
-    exit 0
 fi
 
 if [ -z "$OETMP" ]; then
@@ -121,6 +81,32 @@ fi
 
 if [ ! -f ${SRCDIR}/${KERNEL_IMAGETYPE} ]; then
     echo "Kernel file not found: ${SRCDIR}/${KERNEL_IMAGETYPE}"
+    exit 1
+fi
+
+if [ -b ${1} ]; then
+    DEV=${1}
+else
+    DEV=/dev/${1}1
+
+    if [ ! -b ${DEV} ]; then
+        DEV=/dev/${1}p1
+
+        if [ ! -b ${DEV} ]; then
+            echo "Block device not found: /dev/${1}1 or /dev/${1}p1"
+            exit 1
+        fi
+    fi
+fi
+
+echo "Formatting FAT partition on ${DEV}"
+sudo mkfs.vfat -F 32 ${DEV} -n BOOT
+
+echo "Mounting ${DEV}"
+sudo mount ${DEV} /media/card
+
+if [ "$?" -ne 0 ]; then
+    echo "Error mounting ${DEV} at /media/card"
     exit 1
 fi
 

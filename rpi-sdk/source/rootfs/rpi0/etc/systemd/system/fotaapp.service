@@ -1,0 +1,13 @@
+[Unit]
+Description=boxpower
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash --login -c "/tmp/upgrade_app.sh '/home/.app/fota_app.tar' $(cat /tmp/fota_md5sum)"
+#Restart=always
+#RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+

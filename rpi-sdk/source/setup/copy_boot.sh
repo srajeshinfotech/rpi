@@ -43,27 +43,23 @@ fi
 
 sudo mkdir -p /media/card
 
-if [ -b ${1} ]; then
-    DEV=${1}
-else
-    DEV=/dev/${1}1
+DEV=${1}1
 
-    if [ ! -b ${DEV} ]; then
-        DEV=/dev/${1}p1
+if [ ! -b ${DEV} ]; then
+	DEV=${1}p1
 
-        if [ ! -b ${DEV} ]; then
-            echo "Block device not found: /dev/${1}1 or /dev/${1}p1"
-            exit 1
-        fi
-    fi
+	if [ ! -b ${DEV} ]; then
+		echo "Block device not found: ${1}1 or ${1}p1"
+		exit 1
+	fi
 fi
 
 echo "Formatting FAT partition on ${DEV}"
 sudo mkfs.vfat -F 32 ${DEV} -n boot
 
+sudo umount ${DEV}
 echo "Mounting ${DEV}"
 mountpath="/media/card"
-sudo umount ${DEV}
 sudo mount ${DEV} ${mountpath}
 
 if [ "$?" -ne 0 ]; then
@@ -71,11 +67,11 @@ if [ "$?" -ne 0 ]; then
     exit 1
 fi
 
-rm -rf ${mountpath}/* 2> /dev/null
+sudo rm -rf ${mountpath}/* 2> /dev/null
 
 if [ -f "$2" ]; then
     echo "Exacting the bootloader tar($2) into ${mountpath}"
-    sudo tar --numeric-owner -lxvf $2  -C ${mountpath}
+    sudo tar --numeric-owner -lxvf $2 -C ${mountpath} --no-same-owner
     if [ "$?" -ne 0 ]; then
         echo "Error exacting the tar file $2 at ${mountpath}"
         sudo umount ${DEV}

@@ -3,8 +3,6 @@ SUMMARY = "A console development image with some C/C++ dev tools"
 IMAGE_FEATURES += "package-management splash"
 IMAGE_LINGUAS = "en-us"
 
-DISTRO_FEATURES_append = " systemd"
-
 inherit image
 
 DEPENDS += "bcm2835-bootfiles"
@@ -23,9 +21,11 @@ WIFI_SUPPORT = " \
     wpa-supplicant \
 "
 
-_DEV_SDK_INSTALL = " "
-
 DEV_SDK_INSTALL = " \
+"
+
+
+_DEV_SDK_INSTALL = " \
     binutils \
     binutils-symlinks \
     coreutils \
@@ -33,41 +33,53 @@ DEV_SDK_INSTALL = " \
     cpp-symlinks \
     diffutils \
     elfutils elfutils-binutils \
-    file \
-    g++ \
-    g++-symlinks \
     gcc \
     gcc-symlinks \
+    ldd \
+    g++-symlinks \
     gdb \
     gdbserver \
     gettext \
-    git \
-    ldd \
     libstdc++ \
     libstdc++-dev \
     libtool \
     ltrace \
     make \
     pkgconfig \
-    python3-modules \
-    strace \
-    nmap \
-    cmake \
-    xmlto \
-    usbinit \
-    dhcp-server dhcp-client \
-    dpkg \
-    sqlite3 \
     gawk \
     autoconf \
-"
-
-DEV_EXTRAS = " \
-    serialecho  \
-    spiloop \
+    git \
+    curl-dev \
+    openssl-dev \
+    cmake \
+    libxml2-dev \
+    opencv-dev libopencv-core libopencv-core-dev \
+    mosquitto-dev \
+    mosquitto \
+    librepo \
+    wiringpi \
 "
 
 EXTRA_TOOLS_INSTALL = " \
+    iptables \
+    ntp \
+    ntp-tickadj \
+    file \
+"
+
+UNUSED_TOOLS = " \
+    serialecho  \
+    spiloop \
+    lsof \
+    less \
+    grep \
+    wget \
+    zip \
+    unzip \
+    util-linux \
+    i2c-tools \
+    iperf3 \
+    iproute2 \
     bzip2 \
     devmem2 \
     dosfstools \
@@ -75,39 +87,45 @@ EXTRA_TOOLS_INSTALL = " \
     fbset \
     findutils \
     firewall \
-    grep \
-    i2c-tools \
-    iperf3 \
-    iproute2 \
-    iptables \
-    less \
-    lsof \
-    nano \
     netcat-openbsd \
-    ntp ntp-tickadj \
     procps \
     rndaddtoentcnt \
     rng-tools \
     sysfsutils \
-    unzip \
-    util-linux \
-    wget \
-    zip \
+    nmap \
+    xmlto \
+    usbinit \
+    nano \
+    libopencv-imgproc libopencv-imgproc-dev libopencv-objdetect-dev libopencv-ml-dev opencv-apps gstreamer1.0-libav \
+    python3-modules python3-pip libpipeline \
+    strace \
+    dhcp-server \
+    dhcp-client \
+    dpkg \
+    ncurses \
+    openssh-ssh \
+    openssh-misc openssh-dev \
+    openssh-scp openssh-sftp \
+    opie-deco-liquid \
+    libcurl \
+    libxml2-utils libxml2 \
+    sqlite3 \
+    opencv \
 "
 
 RPI_STUFF = " \
+"
+
+
+_RPI_STUFF = " \
     raspi2fb \
     userland \
 "
 
-APRICOT_DEPENDS = " \
-    openssh openssh-keygen openssh-sftp-server \
-    openssh-scp openssh-ssh openssh-sshd openssh-sftp openssh-misc openssh-dev \
-    gnupg librepo curl mosquitto wiringpi glib-2.0 opie-deco-liquid systemd-machine-units ncurses \
-    opencv libopencv-core libopencv-imgproc libopencv-core-dev opencv-apps gstreamer1.0-libav python3-pip libpipeline \
-    libcurl curl-dev \
-    libopencv-core-dev opencv-apps opencv-dev libopencv-imgproc-dev libopencv-objdetect-dev libopencv-ml-dev \
-    libxml2-utils libxml2 \
+MY_APP_DEPENDS = " \
+    g++ \
+    openssh openssh-sshd openssh-keygen openssh-sftp-server \
+    gnupg glib-2.0 systemd-machine-units \
 "
 
 IMAGE_INSTALL += " \
@@ -115,12 +133,12 @@ IMAGE_INSTALL += " \
     ${EXTRA_TOOLS_INSTALL} \
     ${RPI_STUFF} \
     ${WIFI_SUPPORT} \
-    ${APRICOT_DEPENDS} \
+    ${MY_APP_DEPENDS} \
     ${DEV_SDK_INSTALL} \
 "
 
 set_local_timezone() {
-    ln -sf /usr/share/zoneinfo/EST5EDT ${IMAGE_ROOTFS}/etc/localtime
+    ln -sf /usr/share/zoneinfo/Asia/Tokyo ${IMAGE_ROOTFS}/etc/localtime
 }
 
 disable_bootlogd() {
@@ -137,13 +155,16 @@ remove_unwanted_files() {
     rm -rf ${IMAGE_ROOTFS}/sbin/.debug
     rm -rf ${IMAGE_ROOTFS}/lib/.debug
     rm -rf ${IMAGE_ROOTFS}/usr/share/ca-certificates/
-    rm -rf ${IMAGE_ROOTFS}/usr/src/debug/
+    rm -rf ${IMAGE_ROOTFS}/usr/src/
     rm -rf ${IMAGE_ROOTFS}/usr/include/
+    rm -rf ${IMAGE_ROOTFS}/var/lib/opkg/info/
+    rm -rf ${IMAGE_ROOTFS}/usr/share/OpenCV/haarcascades/
 }
 
 ROOTFS_POSTPROCESS_COMMAND += " \
     set_local_timezone ; \
     disable_bootlogd ; \
+    remove_unwanted_files ; \
 "
 
 export IMAGE_BASENAME = "console-image"

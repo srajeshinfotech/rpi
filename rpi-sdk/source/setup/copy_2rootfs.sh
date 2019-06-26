@@ -39,25 +39,21 @@ if [ ! -f "${TAR_FILE_PATH}" ]; then
         exit 1
 fi
 
-if [ -b ${1} ]; then
-	DEV=${1}
-else
-	DEV=/dev/${1}2
+_DEV=${1}
 
-	if [ ! -b $DEV ]; then
-		DEV=/dev/${1}p2
+if [ ! -b ${_DEV}2 ]; then
+	_DEV=${1}p
 
-		if [ ! -b $DEV ]; then
-			echo "Block device not found: /dev/${1}2 or /dev/${1}p2"
-			exit 1
-		fi
+	if [ ! -b ${_DEV}2 ]; then
+		echo "Block device not found: ${1}2 or ${1}p2"
+		exit 1
 	fi
 fi
 
 a=2
 while [ $a -lt 4 ]
 do
-	DEV=${1}${a}
+	DEV=${_DEV}${a}
 	if [ ! -b $DEV ]; then
 		echo "Block device not found: $DEV"
 		exit 1
@@ -90,8 +86,9 @@ do
 		exit 1
 	fi
 
+	sudo rm -rf ${mountpath}/* 2> /dev/null
 	echo "Extracting ${TAR_FILE_PATH} to ${mountpath}"
-	sudo tar --numeric-owner -C ${mountpath} -xJf ${TAR_FILE_PATH}
+	sudo tar --numeric-owner -C ${mountpath} -xJf ${TAR_FILE_PATH} --no-same-owner
 
 	echo "Generating a random-seed for urandom"
 	sudo mkdir -p ${mountpath}/var/lib/urandom
@@ -103,7 +100,7 @@ do
 	a=`expr $a + 1`
 done
 
-DEV=/dev/${1}4
+DEV=${_DEV}4
 
 if [ -b ${DEV} ]; then
 	echo "Formatting partition ${DEV} as ext4"

@@ -1,0 +1,10 @@
+[Unit]
+Description=boxpower
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash --login -c "/tmp/upgrade_os.sh '/home/pi/boxpower/storage/cache/fota_firmware.tar' $(cat /tmp/fota_md5sum)"
+
+[Install]
+WantedBy=multi-user.target
